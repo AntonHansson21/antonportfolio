@@ -35,7 +35,7 @@ export default function Navbar() {
         onClick={() => handleClick("HERO")}
         className="font-pixel text-xs text-[#00ffff] glow-cyan neon-pulse tracking-widest"
       >
-        A<span className="text-[#ff00ff]">N</span>T<span className="text-[#00ff41]">O</span>N
+        A<span className="text-[#ff00ff]">N</span>T<span className="text-[#00ff41]">O</span>N H
       </button>
 
       {/* Nav links */}
