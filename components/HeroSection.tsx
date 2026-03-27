@@ -59,7 +59,7 @@ export default function HeroSection() {
         transition={{ delay: 0.6, duration: 0.6, ease: "easeOut" }}
         className="font-pixel text-4xl sm:text-6xl md:text-7xl leading-tight mb-6 glow-cyan text-[#00ffff] select-none"
       >
-        <GlitchText text="ANTON HANSSON" />
+        <GlitchText text="ADAM" />
       </motion.h1>
 
       {/* Typewriter role */}

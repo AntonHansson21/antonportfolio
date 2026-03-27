@@ -75,7 +75,7 @@ export default function AboutSection() {
             SYSTEM PROFILE
           </h3>
           <p className="font-mono-tech text-sm text-[#aaa] leading-relaxed mb-4">
-            Hey, I&apos;m Anton — a UX designer obsessed with crafting experiences that feel
+            Hey, I&apos;m Adam — a UX designer obsessed with crafting experiences that feel
             alive. I merge data-driven research with expressive visual design to build
             interfaces people actually love using.
           </p>

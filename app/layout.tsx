@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ANTON — UX Designer",
-  description: "Portfolio of Anton — UX Designer. Retro-digital aesthetic.",
+  title: "ADAM — UX Designer",
+  description: "Portfolio of Adam — UX Designer. Retro-digital aesthetic.",
 };
 
 export default function RootLayout({
