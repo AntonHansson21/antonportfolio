@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=VT323&display=swap');
+@import "tailwindcss";
+
+:root {
+  --desktop:   #2DC8A8;
+  --win-bg:    #E8FDF8;
+  --title-a1:  #0E7A65;
+  --title-a2:  #2DC8A8;
+  --title-i1:  #6AADA4;
+  --title-i2:  #90C9C3;
+  --bevel-hl:  #AEFAF0;
+  --bevel-sh:  #0A4A3A;
+  --btn-face:  #FFD166;
+  --text:      #0A3D35;
+  --text-dim:  #1E6B5A;
+  --text-sel:  #E8FDF8;
+  --sel-bg:    #0E7A65;
+  --border:    #2DC8A8;
+  --input-bg:  #F0FFFC;
+}
+
+* {
+  cursor: none !important;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Courier Prime', monospace;
+  font-size: 15px;
+  color: var(--text);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 3D bevel helpers */
+.bevel-out {
+  border: 2px solid;
+  border-color: var(--bevel-hl) var(--bevel-sh) var(--bevel-sh) var(--bevel-hl);
+}
+.bevel-in {
+  border: 2px solid;
+  border-color: var(--bevel-sh) var(--bevel-hl) var(--bevel-hl) var(--bevel-sh);
+}
+
+/* Window button base */
+.win-btn {
+  width: 20px;
+  height: 20px;
+  background: var(--btn-face);
+  border: 2px solid;
+  border-color: #FFE9A0 #B8902A #B8902A #FFE9A0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Courier Prime', monospace;
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--bevel-sh);
+  flex-shrink: 0;
+}
+.win-btn:active {
+  border-color: #B8902A #FFE9A0 #FFE9A0 #B8902A;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 16px; }
+::-webkit-scrollbar-track {
+  background: var(--win-bg);
+  border-left: 1px solid var(--bevel-sh);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--btn-face);
+  border: 2px solid;
+  border-color: #FFE9A0 #B8902A #B8902A #FFE9A0;
+}
+::-webkit-scrollbar-button {
+  background: var(--btn-face);
+  border: 2px solid;
+  border-color: #FFE9A0 #B8902A #B8902A #FFE9A0;
+  height: 16px;
+}
+
+/* Input fields */
+input, textarea {
+  font-family: 'Courier Prime', monospace;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--input-bg);
+  border: 2px solid;
+  border-color: var(--bevel-sh) var(--bevel-hl) var(--bevel-hl) var(--bevel-sh);
+  outline: none;
+  padding: 4px 6px;
+}
+input::placeholder, textarea::placeholder { color: var(--text-dim); }
+
+/* Press Start font */
+.font-pixel { font-family: 'Press Start 2P', monospace; }
+.font-vt    { font-family: 'VT323', monospace; }
+
+/* Desktop icon selected state */
+.icon-selected .icon-label {
+  background: var(--sel-bg);
+  color: var(--text-sel);
+}
+
+/* Static scanline sweep */
+@keyframes static-sweep {
+  0%   { transform: translateY(-8px); opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 0.7; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+.static-line {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.18) 50%,
+    rgba(255,255,255,0) 100%
+  );
+  pointer-events: none;
+  z-index: 999997;
+  animation: static-sweep 5s linear infinite;
+}
+
+/* Blinking cursor for typewriter */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.type-cursor {
+  display: inline-block;
+  width: 10px;
+  height: 1.1em;
+  background: currentColor;
+  vertical-align: text-bottom;
+  margin-left: 2px;
+  animation: blink 0.8s step-start infinite;
+}
