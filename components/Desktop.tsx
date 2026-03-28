@@ -85,6 +85,14 @@ export default function Desktop() {
   const [windows, setWindows] = useState<WindowConfig[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [selectedIconId, setSelectedIconId] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   // Position icons on mount
   useEffect(() => {
@@ -115,6 +123,13 @@ export default function Desktop() {
 
   const openWindow = useCallback((id: string) => {
     setWindows(prev => {
+      // On mobile: only one window at a time
+      if (isMobile) {
+        const def = WINDOW_DEFAULTS[id];
+        if (!def) return prev;
+        zCounter += 1;
+        return [{ id, ...def, minimized: false, zIndex: zCounter }];
+      }
       const existing = prev.find(w => w.id === id);
       if (existing) {
         zCounter += 1;
@@ -125,7 +140,7 @@ export default function Desktop() {
       return [...prev, { id, ...def, minimized: false, zIndex: zCounter }];
     });
     setActiveId(id);
-  }, []);
+  }, [isMobile]);
 
   const closeWindow = useCallback((id: string) => {
     setWindows(prev => prev.filter(w => w.id !== id));
@@ -149,6 +164,85 @@ export default function Desktop() {
     setSelectedIconId(null);
   }, []);
 
+  // ── MOBILE LAYOUT ─────────────────────────────────────────────────────────
+  if (isMobile) {
+    const activeWindow = windows.find(w => !w.minimized) ?? null;
+    return (
+      <div style={{ position: "fixed", inset: 0, background: "var(--desktop)", overflow: "hidden" }}>
+        {/* Scanlines */}
+        <div style={{
+          position: "absolute", inset: 0,
+          backgroundImage: `repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.06) 3px,rgba(0,0,0,0.06) 4px)`,
+          pointerEvents: "none", zIndex: 0,
+        }} />
+        <div className="static-line" />
+
+        {/* Welcome text */}
+        <WelcomeText />
+
+        {/* 2×2 icon grid — only MAIN_ICONS */}
+        <div style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 24,
+          padding: 16,
+          zIndex: 10,
+        }}>
+          {MAIN_ICONS.map(ic => (
+            <button
+              key={ic.id}
+              className="mobile-icon"
+              onClick={() => openWindow(ic.id)}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 8,
+                background: "rgba(14,122,101,0.18)",
+                border: "2px solid var(--bevel-hl)",
+                borderRadius: 4,
+                padding: "16px 20px",
+                cursor: "pointer",
+                WebkitTapHighlightColor: "transparent",
+              }}
+            >
+              <span style={{ fontSize: 40 }}>{ic.icon}</span>
+              <span style={{
+                fontFamily: "'Press Start 2P', monospace",
+                fontSize: 9,
+                color: "#E8FDF8",
+                textAlign: "center",
+                textShadow: "1px 1px 0 rgba(0,0,0,0.6)",
+                lineHeight: 1.5,
+              }}>{ic.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Active window (full-screen panel) */}
+        {activeWindow && (
+          <Window
+            key={activeWindow.id}
+            config={activeWindow}
+            isActive={true}
+            mobile={true}
+            onFocus={bringToFront}
+            onClose={closeWindow}
+            onMinimize={closeWindow}
+            onMove={moveWindow}
+          >
+            <WindowContent id={activeWindow.id} onOpen={openWindow} />
+          </Window>
+        )}
+      </div>
+    );
+  }
+
+  // ── DESKTOP LAYOUT ─────────────────────────────────────────────────────────
   return (
     <div
       onClick={handleDesktopClick}

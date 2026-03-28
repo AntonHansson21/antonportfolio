@@ -132,6 +132,23 @@ input::placeholder, textarea::placeholder { color: var(--text-dim); }
   animation: static-sweep 5s linear infinite;
 }
 
+/* Mobile: restore system cursor and allow scrolling */
+@media (hover: none), (max-width: 768px) {
+  * { cursor: auto !important; }
+  html, body { overflow: auto; }
+}
+
+/* Mobile window slide-up */
+@keyframes slide-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* Mobile icon tap highlight */
+.mobile-icon:active {
+  filter: brightness(0.85);
+}
+
 /* Blinking cursor for typewriter */
 @keyframes blink {
   0%, 100% { opacity: 1; }

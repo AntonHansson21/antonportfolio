@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, useCallback } from "react";
+import { useRef, useCallback } from "react";
 
 export interface WindowConfig {
   id: string;
@@ -16,6 +16,7 @@ export interface WindowConfig {
 interface WindowProps {
   config: WindowConfig;
   isActive: boolean;
+  mobile?: boolean;
   onFocus: (id: string) => void;
   onClose: (id: string) => void;
   onMinimize: (id: string) => void;
@@ -24,35 +25,113 @@ interface WindowProps {
 }
 
 export default function Window({
-  config, isActive, onFocus, onClose, onMinimize, onMove, children
+  config, isActive, mobile, onFocus, onClose, onMinimize, onMove, children
 }: WindowProps) {
   const dragging = useRef(false);
   const offset = useRef({ x: 0, y: 0 });
 
   const onTitlePointerDown = useCallback((e: React.PointerEvent) => {
+    if (mobile) return;
     dragging.current = true;
     offset.current = { x: e.clientX - config.x, y: e.clientY - config.y };
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     onFocus(config.id);
-  }, [config.x, config.y, config.id, onFocus]);
+  }, [mobile, config.x, config.y, config.id, onFocus]);
 
   const onTitlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!dragging.current) return;
+    if (!dragging.current || mobile) return;
     const nx = Math.max(0, e.clientX - offset.current.x);
     const ny = Math.max(0, e.clientY - offset.current.y);
     onMove(config.id, nx, ny);
-  }, [config.id, onMove]);
+  }, [mobile, config.id, onMove]);
 
   const onTitlePointerUp = useCallback(() => { dragging.current = false; }, []);
 
   if (config.minimized) return null;
 
-  const titleBg = isActive
-    ? `linear-gradient(to right, var(--title-a1), var(--title-a2))`
-    : `linear-gradient(to right, var(--title-i1), var(--title-i2))`;
+  const titleBg = `linear-gradient(to right, var(--title-a1), var(--title-a2))`;
+  const titleColor = "#E8FDF8";
 
-  const titleColor = isActive ? "#E8FDF8" : "#B0D8D2";
+  // ── MOBILE: full-screen slide-up panel ──────────────────────────────────
+  if (mobile) {
+    return (
+      <div style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9000,
+        display: "flex",
+        flexDirection: "column",
+        background: "var(--win-bg)",
+        animation: "slide-up 0.25s ease-out",
+      }}>
+        {/* Title bar */}
+        <div style={{
+          background: titleBg,
+          padding: "10px 12px",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          flexShrink: 0,
+        }}>
+          <span style={{ fontSize: 20 }}>{config.icon}</span>
+          <span style={{
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: 10,
+            color: titleColor,
+            flex: 1,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            letterSpacing: "0.05em",
+            textShadow: "1px 1px 0 rgba(0,0,0,0.4)",
+          }}>
+            {config.title}
+          </span>
+          <button
+            className="win-btn"
+            onClick={() => onClose(config.id)}
+            style={{
+              width: 32, height: 32,
+              fontFamily: "'Courier Prime', monospace",
+              fontWeight: "bold",
+              fontSize: 14,
+              color: "#8B1A08",
+            }}
+          >✕</button>
+        </div>
 
+        {/* Content */}
+        <div style={{
+          flex: 1,
+          overflow: "auto",
+          padding: 16,
+          background: "var(--win-bg)",
+          userSelect: "text",
+          WebkitOverflowScrolling: "touch",
+        }}>
+          {children}
+        </div>
+
+        {/* Status bar */}
+        <div style={{
+          borderTop: "1px solid var(--bevel-sh)",
+          padding: "6px 12px",
+          fontFamily: "'Courier Prime', monospace",
+          fontSize: 12,
+          color: "var(--text-dim)",
+          flexShrink: 0,
+          background: "var(--win-bg)",
+          display: "flex",
+          justifyContent: "space-between",
+        }}>
+          <span>Ready</span>
+          <span>Anton Hansson © 2025</span>
+        </div>
+      </div>
+    );
+  }
+
+  // ── DESKTOP: draggable window ────────────────────────────────────────────
   return (
     <div
       onPointerDown={() => onFocus(config.id)}
@@ -77,7 +156,9 @@ export default function Window({
         onPointerMove={onTitlePointerMove}
         onPointerUp={onTitlePointerUp}
         style={{
-          background: titleBg,
+          background: isActive
+            ? `linear-gradient(to right, var(--title-a1), var(--title-a2))`
+            : `linear-gradient(to right, var(--title-i1), var(--title-i2))`,
           padding: "3px 4px",
           display: "flex",
           alignItems: "center",
@@ -90,7 +171,7 @@ export default function Window({
         <span style={{
           fontFamily: "'Press Start 2P', monospace",
           fontSize: 10,
-          color: titleColor,
+          color: isActive ? "#E8FDF8" : "#B0D8D2",
           flex: 1,
           whiteSpace: "nowrap",
           overflow: "hidden",
@@ -118,7 +199,7 @@ export default function Window({
         </div>
       </div>
 
-      {/* Menu bar (decorative) */}
+      {/* Menu bar */}
       <div style={{
         background: "var(--win-bg)",
         borderBottom: "1px solid var(--bevel-sh)",

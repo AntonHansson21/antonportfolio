@@ -7,6 +7,9 @@ export default function CustomCursor() {
   const clicking = useRef(false);
 
   useEffect(() => {
+    // Skip custom cursor on mobile viewports
+    if (window.innerWidth < 768) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
